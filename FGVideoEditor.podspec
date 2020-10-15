@@ -11,7 +11,7 @@ s.ios.deployment_target = '8.0'
 s.source_files = 'FGVideoEditor/FGVideoEditor/*.swift'
 s.requires_arc = true
 s.dependency     'SnapKit'
-s.dependency	 'FGHUD', :git => 'https://github.com/PratikKhunt/FGHUD.git', :commit => '7c28b40dd827f30002952bf43012d62b23162be5'
+s.dependency	 'FGHUD',
 s.dependency     'FGToolKit', '2.1.1'
 end
 
