@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
-s.name         = "FGVideoEditor"
+s.name         = "PKVideoEditor"
 s.version      = "1.2.1"
 s.summary      = "FGVideoEditor convience video edit toolkit"
-s.homepage     = "https://github.com/Insfgg99x/FGVideoEditor"
+s.homepage     = "https://github.com/PratikKhunt/FGVideoEditor.git"
 s.license      = "MIT"
 s.authors      = { "CGPointZero" => "newbox0512@yahoo.com" }
-s.source       = { :git => "https://github.com/Insfgg99x/FGVideoEditor.git", :tag => "1.2.1"}
+s.source       = { :git => "https://github.com/PratikKhunt/FGVideoEditor.git", :tag => "1.2.1"}
 s.frameworks   = 'Foundation','UIKit','AVFoundation','CoreMedia','Photos'
 s.ios.deployment_target = '8.0'
 s.source_files = 'FGVideoEditor/FGVideoEditor/*.swift'
