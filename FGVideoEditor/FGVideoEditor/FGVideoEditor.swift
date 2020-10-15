@@ -13,7 +13,7 @@ import FGHUD
 import CoreMedia
 
 public class FGVideoEditor: NSObject {
-    open static let shared = FGVideoEditor.init()
+    public static let shared = FGVideoEditor.init()
     private var videoFolder = ""
     override init() {
         super.init()

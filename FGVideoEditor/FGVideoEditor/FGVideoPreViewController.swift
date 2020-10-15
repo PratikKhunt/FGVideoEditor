@@ -38,7 +38,7 @@ public class FGVideoPreViewController: UIViewController {
     private var backBtn:UIButton?
     private var previewLayer:AVPlayerLayer?
     private var slider:FGVideoEditSliderView!
-    private var currentRange = kCMTimeRangeZero
+    private var currentRange = CMTimeRange.zero
     private var croping = false
     private var cropedUrl = URL.init(fileURLWithPath: NSHomeDirectory())
     private var overLengtLb = UILabel.init()
@@ -94,8 +94,8 @@ private extension FGVideoPreViewController {
     private func setup() {
         view.backgroundColor = .black
         //fd_interactivePopDisabled = true
-        NotificationCenter.default.addObserver(self, selector: #selector(enterBackground), name: .UIApplicationWillResignActive, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForceground), name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(enterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForceground), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     private func createUI() {
         topBar = UIView.init()
@@ -125,7 +125,7 @@ private extension FGVideoPreViewController {
             make.height.equalTo(50)
         })
 
-        editBtn.setTitle("编辑", for: .normal)
+        editBtn.setTitle("Edit", for: .normal)
         editBtn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         editBtn.setTitleColor(.white, for: .normal)
         editBtn.contentHorizontalAlignment = .left
@@ -137,7 +137,7 @@ private extension FGVideoPreViewController {
             make.size.equalTo(CGSize.init(width: 50, height: 40))
         }
         
-        bottomDoneBtn.setTitle("完成", for: .normal)
+        bottomDoneBtn.setTitle("Done", for: .normal)
         bottomDoneBtn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         bottomDoneBtn.setTitleColor(.white, for: .normal)
         bottomDoneBtn.setTitleColor(hexcolor(0x4b8b5c), for: .disabled)
@@ -160,7 +160,7 @@ private extension FGVideoPreViewController {
             make.size.equalTo(CGSize.init(width: 85, height: 85))
         }
         guard let url = videourl else {
-            self.showHUD(.error("获取不到资源"))
+            self.showHUD(.error("No url found"))
             return
         }
         
@@ -168,16 +168,16 @@ private extension FGVideoPreViewController {
         let total = asset.duration
         duration = CGFloat(CMTimeGetSeconds(total))
         timesclae = total.timescale
-        currentRange = CMTimeRangeMake(kCMTimeZero, total)
+        currentRange = CMTimeRangeMake(start: CMTime.zero, duration: total)
         
         player = AVPlayer.init(url: url)
         previewLayer = AVPlayerLayer.init(player: player!)
-        previewLayer?.contentsGravity = AVLayerVideoGravity.resizeAspectFill.rawValue
+        previewLayer?.contentsGravity = CALayerContentsGravity(rawValue: AVLayerVideoGravity.resizeAspectFill.rawValue)
         previewLayer?.frame = view.bounds
         previewLayer?.backgroundColor = UIColor.clear.cgColor
         view.layer.insertSublayer(previewLayer!, at: 0)
         let py = self.player!
-        py.addPeriodicTimeObserver(forInterval: CMTimeMake(10, total.timescale), queue: nil, using: { (current) in
+        py.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 10, timescale: total.timescale), queue: nil, using: { (current) in
             if current >= self.currentRange.end {
                 self.playEnd()
             }
@@ -204,7 +204,7 @@ private extension FGVideoPreViewController {
         
         guard duration >= minvideoduration else {
             let toshortLb = UILabel.init()
-            toshortLb.text = "不能分享小于1秒的视频"
+            toshortLb.text = "Can't share videos less than 1 second"
             toshortLb.font = UIFont.systemFont(ofSize: 14)
             toshortLb.textAlignment = .right
             toshortLb.textColor = .white
@@ -230,7 +230,7 @@ private extension FGVideoPreViewController {
                 make.size.equalTo(CGSize.init(width: 50, height: 30))
             })
             
-            overLengtLb.text = "只能分享\(Int(maxduration))秒内的视频，需要进行编辑"
+            overLengtLb.text = "Only share videos within\(Int(maxduration)) seconds, need to edit"
             overLengtLb.textColor = .white
             overLengtLb.font = UIFont.systemFont(ofSize: 14)
             overLengtLb.adjustsFontSizeToFitWidth = true
@@ -254,7 +254,7 @@ private extension FGVideoPreViewController {
     }
     @objc private func editAction(_ sender:UIButton) {
         guard let url = videourl else {
-            self.showHUD(.error("获取不到资源"))
+            self.showHUD(.error("Can't get resources"))
             return
         }
         croping = true
@@ -271,7 +271,7 @@ private extension FGVideoPreViewController {
         }
         if cancelBtn == nil {
             cancelBtn = UIButton.init()
-            cancelBtn?.setTitle("取消", for: .normal)
+            cancelBtn?.setTitle("Cancel", for: .normal)
             cancelBtn?.setTitleColor(.white, for: .normal)
             cancelBtn?.titleLabel?.font = UIFont.systemFont(ofSize: 14)
             cancelBtn?.addTarget(self, action: #selector(cancelAction(_:)), for: .touchUpInside)
@@ -286,7 +286,7 @@ private extension FGVideoPreViewController {
         
         if confirmBtn == nil {
             confirmBtn = UIButton.init()
-            confirmBtn?.setTitle("完成", for: .normal)
+            confirmBtn?.setTitle("Done", for: .normal)
             confirmBtn?.setTitleColor(hexcolor(0x00ae17), for: .normal)
             confirmBtn?.titleLabel?.font = UIFont.systemFont(ofSize: 14)
             confirmBtn?.addTarget(self, action: #selector(confrimEditAction(_:)), for: .touchUpInside)
@@ -321,7 +321,7 @@ private extension FGVideoPreViewController {
                 wkself?.player?.pause()
                 wkself?.playing = false
             }
-            let tolerance = CMTimeMake(1, timesclae)
+            let tolerance = CMTimeMake(value: 1, timescale: timesclae)
             slider.slidingHandler = { (direction) in
                 let range = (wkself ?? self).slider.cropRange
                 wkself?.currentRange = range
@@ -358,7 +358,7 @@ private extension FGVideoPreViewController {
     @objc private func bottomDoneAction(_ sender:UIButton) {
         sender.isEnabled = false
         guard videourl != nil else {
-            self.showHUD(.error("资源加载失败"))
+            self.showHUD(.error("Resource loading failed"))
             return
         }
         var info:FGVideoInfo? = nil
@@ -457,16 +457,16 @@ private extension FGVideoPreViewController {
     }
     @objc private func confrimEditAction(_ sender:UIButton) {
         guard let url = videourl else {
-            self.showHUD(.error("获取不到资源"))
+            self.showHUD(.error("Can't get resources"))
             return
         }
         let range = slider.cropRange
         //cut video
         botBar?.isUserInteractionEnabled = false
-        self.showHUD(.loading("处理中"))
+        self.showHUD(.loading("Processing"))
         FGVideoEditor.shared.cropVideo(url: url, cropRange: range, completion: { (newUrl, newDuration, result) in
             guard result else {
-                self.showHUD(.error("剪切失败"))
+                self.showHUD(.error("Cut failure"))
                 DispatchQueue.main.async {
                     self.botBar?.isUserInteractionEnabled = true
                 }

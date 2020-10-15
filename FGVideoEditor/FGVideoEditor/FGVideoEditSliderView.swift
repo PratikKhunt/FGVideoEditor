@@ -30,9 +30,9 @@ public class FGVideoEditSliderView: UIView {
             let xpos = contentView.contentOffset.x + overlay.frame.origin.x
             let start = (xpos / contentView.contentSize.width) * duration
             let cropAreaDuration = (overlay.frame.size.width / contentView.contentSize.width) * duration
-            let startcm = CMTimeMakeWithSeconds(Float64(start), timescale)
-            let durationcm = CMTimeMakeWithSeconds(Float64(cropAreaDuration), timescale)
-            let range = CMTimeRangeMake(startcm, durationcm)
+            let startcm = CMTimeMakeWithSeconds(Float64(start), preferredTimescale: timescale)
+            let durationcm = CMTimeMakeWithSeconds(Float64(cropAreaDuration), preferredTimescale: timescale)
+            let range = CMTimeRangeMake(start: startcm, duration: durationcm)
             return range
         }
     }
@@ -183,7 +183,7 @@ private extension FGVideoEditSliderView {
 private extension FGVideoEditSliderView {
     private func imageFromVideo(at: CGFloat) -> UIImage {
         do {
-            let ct = CMTimeMakeWithSeconds(Float64(at), timescale)
+            let ct = CMTimeMakeWithSeconds(Float64(at), preferredTimescale: timescale)
             let ref = try imageGenerator.copyCGImage(at: ct, actualTime: nil)
             let image = UIImage.init(cgImage: ref)
             return image
